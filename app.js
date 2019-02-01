@@ -1,106 +1,89 @@
-// "budget__title--month"
-
-// "budget__value"
-// "budget__income--value"
-// "budget__expenses--value"
-
-// "add__type"
-// "add__description"
-// "add__value"
-// "add__btn"
-
-// id="income-0"
-// "item__description"
-// "item__value"
-// "item__delete--btn"
-
-// id="expense-0"
-// "item__description"
-// "item__value"
-// "item__percentage"
-// "item__delete--btn"
 
 
-const select = document.querySelector('select');
+
+const form = document.forms['form'];
+const select = document.querySelector('.add__type');
 const inputDescription = document.querySelector('.add__description');
 const inputValue = document.querySelector('.add__value');
-const form = document.querySelector('.add__container');
+const button = document.querySelector('.add__btn');
 const incomeList = document.querySelector('.income__list');
 const expensesList = document.querySelector('.expenses__list');
-const bottom = document.querySelector('.bottom');
+const incomeView = document.querySelector('.budget__income--value');
+const expensesView = document.querySelector('.budget__expenses--value');
 
-let income = [];
-let expenses = [];
+let incomeArr = [];
+let expensesArr = [];
+let income = 0;
+let expenses = 0;
 
-const markupIncome = (description, value, index) => {
+//---------------
+
+const addIncome = (description, value) => {
+    let plus = {
+        description,
+        value
+    };
+
+    income += +value
+    incomeView.textContent = `+ ${income}`;
+
+
+    incomeArr.push(plus);    
+    addMarkupIncomeView(description, value);
+};
+
+const addMarkupIncomeView = (description, value) => {
+    let markup = markupIncome(description, value);
+    incomeList.insertAdjacentHTML('beforeend', markup);
+};
+
+const markupIncome = (description, value) => {
     return `
-    <div class="item clearfix" id="income-${index}">
+    <div class="item clearfix">
         <div class="item__description">${description}</div>
         <div class="right clearfix">
-        <div class="item__value">+ ${value}</div>
+        <div class="item__value">${value}</div>
             <div class="item__delete">
                 <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
             </div>
         </div>
     </div>
     `
-};
-
-const addMarkupIncome = (description, value) => {
-    let plus = {
-        description,
-        value,
-        index: 0
-    };
-
-    income.push(plus);
-    // for (let i = 0 ; true; ++i) {
-    //     let a
-    //     income.forEach((el) => {
-    //         if (el.index === i) return a = true;
-    //     }); 
-    //     console.log(a);  
-    // }
-    // plus.index = income.indexOf(plus);
-    
-    addMarkupIncomeView(description, value, plus.index);
-};
-
-const addMarkupIncomeView = (description, value, index) => {
-    let markup = markupIncome(description, value, index);
-    incomeList.insertAdjacentHTML('beforeend', markup);
 };
 
 //----------
 
-const markupExpenses = (description, value, index) => {
+const addExpenses = (description, value) => {
+    let minus = {
+        description,
+        value
+    };
+
+    expenses += +value
+    expensesView.textContent = `- ${expenses}`;
+    
+    expensesArr.push(minus);
+    addMarkupExpensesView(description, value);
+};
+
+const addMarkupExpensesView = (description, value) => {
+    let markup = markupExpenses(description, value);
+    expensesList.insertAdjacentHTML('beforeend', markup);
+};
+
+const markupExpenses = (description, value) => {
     return `
-    <div class="item clearfix" id="expense-${index}">
+    <div class="item clearfix">
         <div class="item__description">${description}</div>
         <div class="right clearfix">
-            <div class="item__value">- ${value}</div>
-            <div class="item__percentage">00%</div>
+            <div class="item__value">${value}</div>
+            <div class="item__percentage">${(100 / (income / value)).toFixed(2)}%</div>
             <div class="item__delete">
                 <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
             </div>
         </div>
     </div>
-    `
-};
-
-const addMarkupExpenses = (description, value) => {
-    let minus = {
-        description,
-        value
-    };
-    
-    minus.index = expenses.push(minus);
-    addMarkupExpensesView(description, value, minus.index);
-};
-
-const addMarkupExpensesView = (description, value, index) => {
-    let markup = markupExpenses(description, value, index);
-    expensesList.insertAdjacentHTML('beforeend', markup);
+    ` 
 };
 
 //-----------
@@ -109,34 +92,81 @@ form.addEventListener('submit', (e) => {
     e.preventDefault();
 
     if (select.value === "income") {
-        addMarkupIncome(inputDescription.value, inputValue.value);
+        addIncome(inputDescription.value, inputValue.value);
         inputDescription.value = "";
         inputValue.value = "";
     }
 
     if (select.value === 'expense') {
-        addMarkupExpenses(inputDescription.value, inputValue.value);
+        addExpenses(inputDescription.value, inputValue.value);
         inputDescription.value = "";
         inputValue.value = "";
     }
+
+    document.querySelector('.budget__value').textContent = income - expenses;
 });
+
+const changeOption = (e) => { 
+    select.classList.toggle('red-focus');
+    inputDescription.classList.toggle('red-focus');
+    inputValue.classList.toggle('red-focus');
+    button.classList.toggle('red');
+};
+
+select.addEventListener("change", changeOption);
+
+//-----------
+
+const deleteItemIncome = (description, value) => {
+    income -= +value
+    incomeView.textContent = `+ ${income}`;
+
+    let index;
+    for (let i = 0; i < incomeArr.length; i++) {
+        if (incomeArr[i].description === description && incomeArr[i].value === value) {
+            index = i
+        }
+    }
+    incomeArr.splice(index, 1);
+};
 
 incomeList.addEventListener('click', (e) => {
     e.preventDefault();
+    if (e.target.parentElement.className !== "item__delete--btn") return;
 
-    if (e.target.parentElement.className === "item__delete--btn") {
-        e.path.forEach(element => {
-            if (element.id) {
-                console.log(element);
-                let id = element.id;
-                deleteItem(id);
-                element.parentElement.removeChild(element);
-            }    
-        });
-    }
+    deleteItemIncome(e.target.closest('.item').firstElementChild.innerHTML,
+    e.target.closest('.item').lastElementChild.firstElementChild.innerHTML);
+
+    e.target.closest('.item').parentElement.removeChild(e.target.closest('.item'));
+
+    document.querySelector('.budget__value').textContent = income - expenses;
 });
 
+//--------------
 
-const deleteItem = (id) => {
-    
+const deleteItemExpenses = (description, value) => {
+    expenses -= +value
+    expensesView.textContent = `- ${expenses}`;
+
+    let index;
+    for (let i = 0; i < expensesArr.length; i++) {
+        if (expensesArr[i].description === description && expensesArr[i].value === value) {
+            index = i
+        }
+    }
+    expensesArr.splice(index, 1);
 };
+
+expensesList.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (e.target.parentElement.className !== "item__delete--btn") return;
+
+    deleteItemExpenses(e.target.closest('.item').firstElementChild.innerHTML,
+    e.target.closest('.item').lastElementChild.firstElementChild.innerHTML);
+
+    e.target.closest('.item').parentElement.removeChild(e.target.closest('.item'));
+
+    document.querySelector('.budget__value').textContent = income - expenses;
+});
+
+//--------------
