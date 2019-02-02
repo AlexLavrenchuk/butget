@@ -1,6 +1,4 @@
 
-
-
 const form = document.forms['form'];
 const select = document.querySelector('.add__type');
 const inputDescription = document.querySelector('.add__description');
@@ -18,6 +16,11 @@ let expenses = 0;
 
 //---------------
 
+/**
+ * @docs addIncome - recording and withdrawal of income
+ * @param {string} description 
+ * @param {string} value 
+ */
 const addIncome = (description, value) => {
     let plus = {
         description,
@@ -32,17 +35,27 @@ const addIncome = (description, value) => {
     addMarkupIncomeView(description, value);
 };
 
+/**
+ * @dosc addMarkupIncomeView - add to page
+ * @param {string} description 
+ * @param {string} value 
+ */
 const addMarkupIncomeView = (description, value) => {
     let markup = markupIncome(description, value);
     incomeList.insertAdjacentHTML('beforeend', markup);
 };
 
+/**
+ * @docs markupIncome - creating markup with the necessary parameters
+ * @param {string} description 
+ * @param {string} value 
+ */
 const markupIncome = (description, value) => {
     return `
     <div class="item clearfix">
         <div class="item__description">${description}</div>
         <div class="right clearfix">
-        <div class="item__value">${value}</div>
+            <div class="item__value">${value}</div>
             <div class="item__delete">
                 <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
             </div>
@@ -53,6 +66,11 @@ const markupIncome = (description, value) => {
 
 //----------
 
+/**
+ * @docs addExpenses - recording and withdrawing costs
+ * @param {string} description 
+ * @param {string} value 
+ */
 const addExpenses = (description, value) => {
     let minus = {
         description,
@@ -66,18 +84,28 @@ const addExpenses = (description, value) => {
     addMarkupExpensesView(description, value);
 };
 
+/**
+ * @dosc addMarkupExpensesView - add to page
+ * @param {string} description 
+ * @param {string} value 
+ */
 const addMarkupExpensesView = (description, value) => {
     let markup = markupExpenses(description, value);
     expensesList.insertAdjacentHTML('beforeend', markup);
 };
 
+/**
+ * @docs markupExpenses - creating markup with the necessary parameters
+ * @param {string} description 
+ * @param {string} value 
+ */
 const markupExpenses = (description, value) => {
     return `
     <div class="item clearfix">
         <div class="item__description">${description}</div>
         <div class="right clearfix">
             <div class="item__value">${value}</div>
-            <div class="item__percentage">${(100 / (income / value)).toFixed(2)}%</div>
+            <div class="item__percentage">${(100 / (income / value)).toFixed(1)}%</div>
             <div class="item__delete">
                 <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
             </div>
@@ -93,19 +121,20 @@ form.addEventListener('submit', (e) => {
 
     if (select.value === "income") {
         addIncome(inputDescription.value, inputValue.value);
-        inputDescription.value = "";
-        inputValue.value = "";
+        form.reset();
     }
 
     if (select.value === 'expense') {
         addExpenses(inputDescription.value, inputValue.value);
-        inputDescription.value = "";
-        inputValue.value = "";
+        form.reset();
     }
 
     document.querySelector('.budget__value').textContent = income - expenses;
 });
 
+/**
+ * @docs changeOption - class change when select is changed
+ */
 const changeOption = (e) => { 
     select.classList.toggle('red-focus');
     inputDescription.classList.toggle('red-focus');
@@ -117,6 +146,11 @@ select.addEventListener("change", changeOption);
 
 //-----------
 
+/**
+ * @docs deleteItemIncome - remove from array and variable
+ * @param {string} description 
+ * @param {string} value 
+ */
 const deleteItemIncome = (description, value) => {
     income -= +value
     incomeView.textContent = `+ ${income}`;
@@ -144,6 +178,11 @@ incomeList.addEventListener('click', (e) => {
 
 //--------------
 
+/**
+ * @docs deleteItemExpenses - remove from array and variable
+ * @param {string} description 
+ * @param {string} value 
+ */
 const deleteItemExpenses = (description, value) => {
     expenses -= +value
     expensesView.textContent = `- ${expenses}`;
